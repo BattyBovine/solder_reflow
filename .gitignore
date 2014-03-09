@@ -1,0 +1,34 @@
+# Object files
+*.o
+*.o.d
+
+# Libraries
+*.lib
+*.a
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.elf
+*.eep
+*.hex
+
+# Map files
+*.lss
+*.lst
+*.map
+*.sym
+
+# Client files
+*.DSN
+*.DBK
+*.PWI
+*.SDF
+*.session
