@@ -21,7 +21,7 @@ Bill Of Materials (incomplete)
 ==============================
 
 - ATmega168PA or ATmega328P
-- HD44870-compatible 20x4 character LCD display with I2C backpack
+- HD44780-compatible 20x4 character LCD display with I2C backpack
 - K-type thermocouple
 - AD8495 thermocouple amplifier
 - Rotary encoder with push-button switch
