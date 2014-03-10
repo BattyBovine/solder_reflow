@@ -488,8 +488,10 @@ ISR(ADC_vect)
 
 ISR(TIMER0_COMPA_vect)
 {
+	// Don't respond to button presses until this timer has fired eight times
+	// (i.e.: after about 16ms)
 	debounce_count++;
-	if(debounce_count>=8) DEBOUNCE_DISABLE;
+	if(!(debounce_count&0b111)) DEBOUNCE_DISABLE;
 }
 
 ISR(TIMER0_OVF_vect)
