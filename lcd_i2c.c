@@ -117,7 +117,6 @@ lcd_write(unsigned char data, unsigned char df)
 	// i2c_send_stop();
 	i2c_stop();
 	// _delay_us_asm(40);														// Minimum execution time
-	lcd_busy_wait();
 }
 
 
@@ -129,6 +128,7 @@ Returns: none
 void lcd_command(unsigned char cmd)
 {
 	lcd_write(cmd, 0);
+	lcd_busy_wait();
 }
 
 /*************************************************************************
@@ -139,6 +139,7 @@ Returns: none
 void lcd_data(unsigned char data)
 {
 	lcd_write(data, 1);
+	lcd_busy_wait();
 }
 
 /*************************************************************************
@@ -229,11 +230,10 @@ void lcd_busy_wait(void)
 		i2c_write((EN|RW|0x00)&~RS);
 		c |= (i2c_readNak()<<4)&0xF0;
 		i2c_write((RW|0x00)&~RS);
-		_delay_us_asm(1);
+		_delay_us_asm(2);
 		i2c_write((EN|RW|0x00)&~RS);
 		c |= i2c_readNak()&0x0F;
 		i2c_write((RW|0x00)&~RS);
-		_delay_us_asm(2);
 	};
 	i2c_stop();
 }
