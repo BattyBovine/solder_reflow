@@ -13,27 +13,27 @@ const char menusel_right PROGMEM = '\177';
 const char global_back[] PROGMEM = "\177 Back";
 
 // Main Menu
-const char mm_pb[MENU_LABEL_LENGTH] PROGMEM =			"Leaded Profile";
-const char mm_rohs[MENU_LABEL_LENGTH] PROGMEM =		"RoHS Profile";
-const char mm_opts[MENU_LABEL_LENGTH] PROGMEM =		"Settings";
-const char mm_about[MENU_LABEL_LENGTH] PROGMEM =	"About Software";
+const char mm_pb[] PROGMEM =			"Leaded Profile";
+const char mm_rohs[] PROGMEM =		"RoHS Profile";
+const char mm_opts[] PROGMEM =		"Settings";
+const char mm_about[] PROGMEM =		"About Software";
 PGM_P main_menu[MENU_LENGTH_main] PROGMEM =
 { mm_pb, mm_rohs, mm_opts, mm_about };
 
 // Settings
-const char sm_tempunits[MENU_LABEL_LENGTH] PROGMEM = "Temp. Units";
+const char sm_tempunits[] PROGMEM = "Temp. Units";
 PGM_P settings_menu[MENU_LENGTH_settings] PROGMEM =
 { global_back, sm_tempunits };
 
 // Settings
-const char um_c[MENU_LABEL_LENGTH] PROGMEM = "Celsius";
-const char um_f[MENU_LABEL_LENGTH] PROGMEM = "Fahrenheit";
-const char um_k[MENU_LABEL_LENGTH] PROGMEM = "Kelvin";
-const char um_r[MENU_LABEL_LENGTH] PROGMEM = "Rankine";
-const char um_d[MENU_LABEL_LENGTH] PROGMEM = "Delisle";
-const char um_n[MENU_LABEL_LENGTH] PROGMEM = "Newton";
-const char um_e[MENU_LABEL_LENGTH] PROGMEM = "R\11aumur";
-const char um_o[MENU_LABEL_LENGTH] PROGMEM = "R\02mer";
+const char um_c[] PROGMEM = "Celsius";
+const char um_f[] PROGMEM = "Fahrenheit";
+const char um_k[] PROGMEM = "Kelvin";
+const char um_r[] PROGMEM = "Rankine";
+const char um_d[] PROGMEM = "Delisle";
+const char um_n[] PROGMEM = "Newton";
+const char um_e[] PROGMEM = "R\11aumur";
+const char um_o[] PROGMEM = "R\02mer";
 PGM_P units_menu[MENU_LENGTH_units] PROGMEM =
 { um_c, um_f, um_k, um_r, um_d, um_n, um_e, um_o };
 
