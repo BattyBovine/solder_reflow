@@ -24,6 +24,7 @@ Bill Of Materials (incomplete)
 - HD44780-compatible 20x4 character LCD display with I2C backpack
 - K-type thermocouple
 - AD8495 thermocouple amplifier
+- ADR550 voltage reference IC
 - Rotary encoder with push-button switch
 - SSR-25DA or similar solid-state relay
 - 16MHz crystal oscillator
