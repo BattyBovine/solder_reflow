@@ -138,6 +138,7 @@ volatile uint8_t eepromflags = 0x00;
 #define EEPROM_NEWTON				(0b0000101)
 #define EEPROM_REAUMUR			(0b0000110)
 #define EEPROM_ROMER				(0b0000111)
+#define EEPROM_BUZZER				(0b0001000)
 
 // Button states for PORTD
 volatile uint8_t pd_prev = 0xFF;
@@ -171,36 +172,13 @@ static inline void reset_all(void);
 
 
 #define NUM_AVERAGE 16
-volatile uint16_t adc_average[NUM_AVERAGE];
-volatile uint8_t average_count = 0;
+static volatile uint16_t adc_average[NUM_AVERAGE];
+static volatile uint8_t average_count = 0;
 
-volatile uint16_t temperature = 0;
-volatile double targettemp = 0;
-volatile uint32_t time_ms = 0;
-volatile uint8_t ctovf_count = 0;
-volatile uint8_t debounce_count = 0;
-
-const char csymbol[] PROGMEM = "\10C";
-const char fsymbol[] PROGMEM = "\10F";
-const char ksymbol[] PROGMEM = "K";
-const char rsymbol[] PROGMEM = "\10R";
-const char dsymbol[] PROGMEM = "\10De";
-const char nsymbol[] PROGMEM = "\10N";
-const char resymbol[] PROGMEM = "\10R\11";
-const char rosymbol[] PROGMEM = "\10R\02";
-const char tempmsg[] PROGMEM = "Temp: %d%s   ";
-const char targetmsg[] PROGMEM = "Target: %.1f%s   ";
-
-const char aboutcopyrightmsg[] PROGMEM = "\16 2014 ";
-const char aboutlicensemsg[] PROGMEM = "Licensed under GPLv3";
-const char canceltimermsg[] PROGMEM = "Cancelling in %d";
-const char comingsoonmsg[] PROGMEM = "Coming soon!";
-const char dooropenmsg[] PROGMEM = "Door open!";
-const char pleaseclosedoormsg[] PROGMEM = "Please close door!";
-const char tcerrormsg[] PROGMEM = "Thermocouple error!";
-const char checktcmsg[] PROGMEM = "Check thermocouple!";
-const char presstocontinuemsg[] PROGMEM = "Press \15 to continue.";
-const char reflowcancelledmsg[] PROGMEM = "Reflow cancelled!";
-const char reflowcompletemsg[] PROGMEM = "Reflow complete!";
+static volatile uint16_t temperature = 0;
+static volatile double targettemp = 0;
+static volatile uint32_t time_ms = 0;
+static volatile uint8_t ctovf_count = 0;
+static volatile uint8_t debounce_count = 0;
 
 #endif // SOLDER_REFLOW_H

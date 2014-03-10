@@ -37,7 +37,32 @@
 	#define CPU_DEFAULT()				CPU_PRESCALE(CPU_1M)
 #endif
 
-// Serial baud rate
+/* Serial baud rate */
 #define BAUD_RATE 9600
+
+
+/* Global string constants */
+static const char csymbol[] PROGMEM = "\10C";
+static const char fsymbol[] PROGMEM = "\10F";
+static const char ksymbol[] PROGMEM = "K";
+static const char rsymbol[] PROGMEM = "\10R";
+static const char dsymbol[] PROGMEM = "\10De";
+static const char nsymbol[] PROGMEM = "\10N";
+static const char resymbol[] PROGMEM = "\10R\11";
+static const char rosymbol[] PROGMEM = "\10R\02";
+static const char tempmsg[] PROGMEM = "Temp: %d%s   ";
+static const char targetmsg[] PROGMEM = "Target: %.1f%s   ";
+
+static const char aboutcopyrightmsg[] PROGMEM = "\16 2014 ";
+static const char aboutlicensemsg[] PROGMEM = "Licensed under GPLv3";
+static const char canceltimermsg[] PROGMEM = "Cancelling in %d";
+static const char comingsoonmsg[] PROGMEM = "Coming soon!";
+static const char dooropenmsg[] PROGMEM = "Door open!";
+static const char pleaseclosedoormsg[] PROGMEM = "Please close door!";
+static const char tcerrormsg[] PROGMEM = "Thermocouple error!";
+static const char checktcmsg[] PROGMEM = "Check thermocouple!";
+static const char presstocontinuemsg[] PROGMEM = "Press \15 to continue.";
+static const char reflowcancelledmsg[] PROGMEM = "Reflow cancelled!";
+static const char reflowcompletemsg[] PROGMEM = "Reflow complete!";
 
 #endif // GLOBAL_H
