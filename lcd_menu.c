@@ -25,7 +25,7 @@ const char sm_tempunits[] PROGMEM = "Temp. Units";
 PGM_P settings_menu[MENU_LENGTH_settings] PROGMEM =
 { global_back, sm_tempunits };
 
-// Settings
+// Temperature Units
 const char um_c[] PROGMEM = "Celsius";
 const char um_f[] PROGMEM = "Fahrenheit";
 const char um_k[] PROGMEM = "Kelvin";
