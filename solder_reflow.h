@@ -19,17 +19,22 @@
 #define PROGRAM_DEV		"BattyBovine"
 
 /* Interrupt macros */
+#define HEAT_ENABLE						(PORTD |= (1<<4))
+#define HEAT_DISABLE					(PORTD &= ~(1<<4))
+
 #define INPUT_ENABLE					(PCICR |= (1<<PCIE2))
 #define INPUT_DISABLE					(PCICR &= ~(1<<PCIE2))
+
+#define BUZZER_ENABLE					(TCCR2A |= (1<<COM2B1))
+#define BUZZER_DISABLE				(TCCR2A &= ~(1<<COM2B1))
+#define BUZZER_TOGGLE					(TCCR2A ^= (1<<COM2B1))
+#define BUZZER_ENABLED				(TCCR2A &= (1<<COM2B1))
 
 #define ADC_ENABLE						(ADCSRA |= ((1<<ADSC)|(1<<ADIE)))
 #define ADC_DISABLE						(ADCSRA &= ~((1<<ADSC)|(1<<ADIE)))
 
-// #define TEMPADJUST_ENABLE			(TIMSK0 |= (1<<OCIE1A))
-// #define TEMPADJUST_DISABLE		(TIMSK0 &= ~(1<<OCIE1A))
-
-#define TEMPREPORT_ENABLE			(TIMSK1 |= (1<<OCIE1A))
-#define TEMPREPORT_DISABLE		(TIMSK1 &= ~(1<<OCIE1A))
+#define TEMPREP_BUZZ_ENABLE		(TIMSK1 |= (1<<OCIE1A))
+#define TEMPREP_BUZZ_DISABLE	(TIMSK1 &= ~(1<<OCIE1A))
 
 #define DEBOUNCE_ENABLE				(TIMSK0 |= (1<<OCIE0A))
 #define DEBOUNCE_DISABLE			(TIMSK0 &= ~(1<<OCIE0A))
@@ -38,9 +43,6 @@
 #define CANCEL_TIMER_ENABLE		(TIMSK0 |= (1<<TOIE0))
 #define CANCEL_TIMER_DISABLE	(TIMSK0 &= ~(1<<TOIE0))
 #define CANCEL_TIMER_ENABLED	(TIMSK0&(1<<TOIE0))
-
-#define HEAT_ENABLE						(PORTD |= (1<<3))
-#define HEAT_DISABLE					(PORTD &= ~(1<<3))
 
 /* Interrupt flags */
 volatile uint8_t isrflags = 0x00;
@@ -165,6 +167,8 @@ static inline void show_profile_completion(void);
 static inline void show_about(void);
 static inline void show_coming_soon(void);
 
+static inline void start_buzzer(uint8_t cnt);
+
 static inline void reset_profile_state(void);
 static inline void reset_cancel_timer(void);
 static inline void reset_all(void);
@@ -180,5 +184,6 @@ static volatile double targettemp = 0;
 static volatile uint32_t time_ms = 0;
 static volatile uint8_t ctovf_count = 0;
 static volatile uint8_t debounce_count = 0;
+static volatile uint8_t buzzer_count = 0;
 
 #endif // SOLDER_REFLOW_H

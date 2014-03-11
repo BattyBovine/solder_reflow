@@ -28,17 +28,17 @@ int main(void)
 	DDRD &= ~(1<<2);
 	PORTD |= (1<<2);
 	
-	// Configure pin D5-7 (rotary encoder and button) as input with pull-ups
-	DDRD &= ~((1<<7)|(1<<6)|(1<<5));
-	PORTD |= ((1<<7)|(1<<6)|(1<<5));
-	
-	// Configure pin D3 (heating elements) as output
+	// Configure pin D3 (piezo alarm) as output (off by default)
 	DDRD |= (1<<3);
 	PORTD &= ~(1<<3);
 	
-	// Configure pin D4 (piezo alarm) as high output
-	// DDRD |= (1<<4);
-	// PORTD |= (1<<4);
+	// Configure pin D4 (heating elements) as output
+	DDRD |= (1<<4);
+	PORTD &= ~(1<<4);
+	
+	// Configure pin D5-7 (rotary encoder and button) as input with pull-ups
+	DDRD &= ~((1<<7)|(1<<6)|(1<<5));
+	PORTD |= ((1<<7)|(1<<6)|(1<<5));
 	
 	// Initialise the LCD display
 	lcd_init();
@@ -57,17 +57,22 @@ int main(void)
 	ADCSRA |= ((1<<ADPS2)|(1<<ADPS1)|		// Clock/128
 		(1<<ADPS0));
 	ADCSRA |= ((1<<ADEN)|(1<<ADATE));		// Enable ADC, auto-trigger
-	// ADC_ENABLE;													// Enable interrupts and start ADC
 	
 	// Configure timer interrupt for debounce and cancel delay
 	TCCR0A |= (1<<WGM01);								// CTC
 	TCCR0B |= ((1<<CS02)|(1<<CS00));		// Clock/128
 	OCR0A = 0xFF;												// 0.00204s at 16MHz / 128
 	
-	// Configure and enable timer interrupt for the temperature reporter
+	// Configure timer interrupt for the temperature reporter and piezo buzzer
 	TCCR1B |= (1<<WGM12);								// CTC mode (clear timer on compare match)
 	TCCR1B |= (1<<CS12);								// Clock/256
 	OCR1A = 3125;												// 0.05s at 16MHz / 256
+	
+	// Configure PWM for the piezo buzzer
+	TCCR2A |= ((1<<WGM21)|(1<<WGM20)|(1<<COM2B1));
+	TCCR2B |= ((1<<CS22)|(1<<CS21)|(1<<CS20));
+	OCR2B = 0x2B;
+	BUZZER_DISABLE;
 	
 	// Load settings from EEPROM and initialise if necessary
 	EEPROM_LOAD();
@@ -123,9 +128,9 @@ int main(void)
 										activeprofile = malloc(sizeof(uint16_t)*PROFILE_LENGTH*PROFILE_DATLEN);
 										if(activeprofile) {
 											MENU_CLR();
-											TEMPREPORT_ENABLE;
-											ADC_ENABLE;
 											memcpy_P(activeprofile,(sel==1?profile_rohs:profile_pb),sizeof(uint16_t)*PROFILE_LENGTH*PROFILE_DATLEN);
+											TEMPREP_BUZZ_ENABLE;
+											ADC_ENABLE;
 											STAT_SET(PROFILE_RUNNING);
 										}
 										break;
@@ -157,10 +162,7 @@ int main(void)
 						} else if(STAT(PROFILE_COMPLETE) ||
 											STAT(PROFILE_CANCEL) ||
 											STAT(TC_ERROR)) {
-							MENU_SET(MAIN);
-							STAT_CLR(PROFILE_COMPLETE);
-							STAT_CLR(PROFILE_CANCEL);
-							STAT_CLR(TC_ERROR);
+							reset_all();
 						} else if(STAT(ABOUT)) {
 							MENU_SET(MAIN);
 							STAT_CLR(ABOUT);
@@ -390,20 +392,17 @@ static inline void show_profile_completion(void)
 	if(STAT(PROFILE_RUNNING)) {
 		STAT_CLR(PROFILE_RUNNING);
 		lcd_clrscr();
-		if(STAT(TC_ERROR)) {
-			lcd_set_cursor(2,1);
-			lcd_print_p(tcerrormsg);
-			STAT_SET(PROFILE_CANCEL);
-		} else if(STAT(PROFILE_CANCEL)) {
+		if(STAT(PROFILE_CANCEL)) {
 			CANCEL_TIMER_DISABLE;
 			lcd_set_cursor(2,2);
 			lcd_print_p(reflowcancelledmsg);
 		} else {
 			lcd_set_cursor(2,3);
 			lcd_print_p(reflowcompletemsg);
+			lcd_set_cursor(3,1);
+			lcd_print_p(presstocontinuemsg);
+			start_buzzer(3);
 		}
-		lcd_set_cursor(3,1);
-		lcd_print_p(presstocontinuemsg);
 	}
 	reset_profile_state();
 }
@@ -431,10 +430,17 @@ static inline void show_coming_soon(void)
 
 
 
+static inline void start_buzzer(uint8_t cnt) {
+	buzzer_count = cnt*20;		// Beep three times for 0.5s each
+	BUZZER_ENABLE;
+	TEMPREP_BUZZ_ENABLE;
+}
+
+
+
 static inline void reset_profile_state(void)
 {
 	HEAT_DISABLE;
-	TEMPREPORT_DISABLE;
 	STAT_CLRPFSTAGE();
 	if(activeprofile) {
 		free(activeprofile);
@@ -453,7 +459,8 @@ static inline void reset_cancel_timer(void)
 static inline void reset_all(void)
 {
 	HEAT_DISABLE;
-	TEMPREPORT_DISABLE;
+	TEMPREP_BUZZ_DISABLE;
+	BUZZER_DISABLE;
 	ADC_ENABLE;
 	ISRF_CLRALL();
 	STAT_CLRALL();
@@ -501,33 +508,39 @@ ISR(TIMER0_OVF_vect)
 
 ISR(TIMER1_COMPA_vect)
 {
-	targettemp = 0;
-	double time_sec = time_ms/1000.0;
-	if(time_sec <= *activeprofile) {
-		targettemp = *(activeprofile+1);
-	} else if(time_sec >= *(activeprofile+(PROFILE_LENGTH-1)*PROFILE_DATLEN)) {
-		STAT_SET(PROFILE_COMPLETE);
-	} else {
-		uint8_t i = PROFILE_LENGTH;
-		while(--i) {
-			if(time_sec <= *(activeprofile+(i*PROFILE_DATLEN)) &&
-			   time_sec > *(activeprofile+((i-1)*PROFILE_DATLEN))) {
-				uint16_t x0 = *(activeprofile+((i-1)*PROFILE_DATLEN));
-				uint16_t x1 = *(activeprofile+(i*PROFILE_DATLEN));
-				int16_t y0 = *(activeprofile+((i-1)*PROFILE_DATLEN)+1)*10;
-				int16_t y1 = *(activeprofile+(i*PROFILE_DATLEN)+1)*10;
-				targettemp = (y0+((y1-y0)*((time_sec-x0)/(x1-x0))))/10;
+	if(activeprofile) {
+		targettemp = 0;
+		double time_sec = time_ms/1000.0;
+		if(time_sec <= *activeprofile) {
+			targettemp = *(activeprofile+1);
+		} else if(time_sec >= *(activeprofile+(PROFILE_LENGTH-1)*PROFILE_DATLEN)) {
+			STAT_SET(PROFILE_COMPLETE);
+		} else {
+			uint8_t i = PROFILE_LENGTH;
+			while(--i) {
+				if(time_sec <= *(activeprofile+(i*PROFILE_DATLEN)) &&
+					 time_sec > *(activeprofile+((i-1)*PROFILE_DATLEN))) {
+					uint16_t x0 = *(activeprofile+((i-1)*PROFILE_DATLEN));
+					uint16_t x1 = *(activeprofile+(i*PROFILE_DATLEN));
+					int16_t y0 = *(activeprofile+((i-1)*PROFILE_DATLEN)+1)*10;
+					int16_t y1 = *(activeprofile+(i*PROFILE_DATLEN)+1)*10;
+					targettemp = (y0+((y1-y0)*((time_sec-x0)/(x1-x0))))/10;
+				}
 			}
 		}
+		
+		if(temperature<targettemp)	HEAT_ENABLE;
+		else												HEAT_DISABLE;
+		
+		time_ms += 50;	// Add 0.05 seconds to the global timer
+		// Report the temperature every 500ms
+		if((!(time_ms%500)) && STAT_SET(PROFILE_RUNNING))
+			ISRF_SET(REPORT_TEMP);
+	} else if(buzzer_count) {
+		buzzer_count--;
+		if(!buzzer_count)	TEMPREP_BUZZ_DISABLE;
+		else if(!(buzzer_count%10)) BUZZER_TOGGLE;
 	}
-	
-	if(temperature<targettemp)	HEAT_ENABLE;
-	else												HEAT_DISABLE;
-	
-  time_ms += 50;	// Add 0.05 seconds to the global timer
-	// Report the temperature every 500ms
-	if((!(time_ms%500)) && STAT_SET(PROFILE_RUNNING))
-		ISRF_SET(REPORT_TEMP);
 }
 
 ISR(PCINT2_vect)
