@@ -132,13 +132,13 @@ void menu_display(uint8_t item) {
 		}
 	
 	} else if(menuitem<menuitem_prev) {
-		uint8_t j = (activemenulen<LCD_LINES)?activemenulen:LCD_LINES;
+		uint8_t i = (activemenulen<LCD_LINES)?activemenulen:LCD_LINES;
 		
 		// If we reach the beginning of the list
-		if (menuitem==0) {
-			for(; j>0; j--) {
-				lcd_set_cursor(j,3);
-				lcd_print_p((PGM_P)pgm_read_word(&activemenu[j-1]));
+		if(menuitem==0) {
+			for(; i>0; i--) {
+				lcd_set_cursor(i,3);
+				lcd_print_p((PGM_P)pgm_read_word(&activemenu[i-1]));
 			}
 			// Clear previous selection markers
 			lcd_set_cursor(2,1);
@@ -153,9 +153,9 @@ void menu_display(uint8_t item) {
 		// If we're going backward and not scrolling the list down
 		} else if(menuitem>activemenulen-LCD_LINES) {
 			uint8_t offset = (activemenulen<LCD_LINES)?0:1;
-			for(; j; j--) {
-				lcd_set_cursor(j,3);
-				lcd_print_p((PGM_P)pgm_read_word(&activemenu[activemenulen-(LCD_LINES-(j-offset))]));
+			for(; i; i--) {
+				lcd_set_cursor(i,3);
+				lcd_print_p((PGM_P)pgm_read_word(&activemenu[activemenulen-(LCD_LINES-(i-offset))]));
 			}
 			// Clear previous selection markers
 			lcd_set_cursor(LCD_LINES-(activemenulen-menuitem)+offset+1,1);
@@ -170,9 +170,9 @@ void menu_display(uint8_t item) {
 		// If we're scrolling
 		} else {
 			lcd_clrscr();
-			for(; j>0; j--) {
-				lcd_set_cursor(j,3);
-				lcd_print_p((PGM_P)pgm_read_word(&activemenu[(j-1)+(menuitem-1)]));
+			for(; i>0; i--) {
+				lcd_set_cursor(i,3);
+				lcd_print_p((PGM_P)pgm_read_word(&activemenu[(i-1)+(menuitem-1)]));
 			}
 			lcd_set_cursor(2,1);
 			lcd_putc(pgm_read_byte(&menusel_left));
