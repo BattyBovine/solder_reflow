@@ -13,29 +13,36 @@ const char menusel_right PROGMEM = '\177';
 const char global_back[] PROGMEM = "\177 Back";
 
 // Main Menu
-const char mm_pb[] PROGMEM =			"Leaded Profile";
-const char mm_rohs[] PROGMEM =		"RoHS Profile";
-const char mm_opts[] PROGMEM =		"Settings";
-const char mm_about[] PROGMEM =		"About Software";
+const char mm_pb[MENU_LABEL_LENGTH] PROGMEM =			"Leaded Profile";
+const char mm_rohs[MENU_LABEL_LENGTH] PROGMEM =		"RoHS Profile";
+const char mm_opts[MENU_LABEL_LENGTH] PROGMEM =		"Settings";
+const char mm_about[MENU_LABEL_LENGTH] PROGMEM =	"About Software";
 PGM_P main_menu[MENU_LENGTH_main] PROGMEM =
 { mm_pb, mm_rohs, mm_opts, mm_about };
 
 // Settings
 const char sm_tempunits[] PROGMEM = "Temp. Units";
+const char sm_uisounds[] PROGMEM = "Sounds";
 PGM_P settings_menu[MENU_LENGTH_settings] PROGMEM =
-{ global_back, sm_tempunits };
+{ global_back, sm_tempunits, sm_uisounds };
 
 // Temperature Units
-const char um_c[] PROGMEM = "Celsius";
-const char um_f[] PROGMEM = "Fahrenheit";
-const char um_k[] PROGMEM = "Kelvin";
-const char um_r[] PROGMEM = "Rankine";
-const char um_d[] PROGMEM = "Delisle";
-const char um_n[] PROGMEM = "Newton";
-const char um_e[] PROGMEM = "R\11aumur";
-const char um_o[] PROGMEM = "R\02mer";
+const char um_c[MENU_LABEL_LENGTH] PROGMEM = "Celsius";
+const char um_f[MENU_LABEL_LENGTH] PROGMEM = "Fahrenheit";
+const char um_k[MENU_LABEL_LENGTH] PROGMEM = "Kelvin";
+const char um_r[MENU_LABEL_LENGTH] PROGMEM = "Rankine";
+const char um_d[MENU_LABEL_LENGTH] PROGMEM = "Delisle";
+const char um_n[MENU_LABEL_LENGTH] PROGMEM = "Newton";
+const char um_e[MENU_LABEL_LENGTH] PROGMEM = "R\11aumur";
+const char um_o[MENU_LABEL_LENGTH] PROGMEM = "R\02mer";
 PGM_P units_menu[MENU_LENGTH_units] PROGMEM =
 { um_c, um_f, um_k, um_r, um_d, um_n, um_e, um_o };
+
+// Sounds On/Off
+const char som_off[] PROGMEM = "Off";
+const char som_on[] PROGMEM = "On";
+PGM_P sounds_menu[MENU_LENGTH_sounds] PROGMEM =
+{ som_off, som_on };
 
 volatile uint8_t menuitem = 0, menuitem_prev = 0;
 
@@ -125,13 +132,13 @@ void menu_display(uint8_t item) {
 		}
 	
 	} else if(menuitem<menuitem_prev) {
-		uint8_t i = (activemenulen<LCD_LINES)?activemenulen:LCD_LINES;
+		uint8_t j = (activemenulen<LCD_LINES)?activemenulen:LCD_LINES;
 		
 		// If we reach the beginning of the list
 		if (menuitem==0) {
-			for(; i>0; i--) {
-				lcd_set_cursor(i,3);
-				lcd_print_p((PGM_P)pgm_read_word(&activemenu[i-1]));
+			for(; j>0; j--) {
+				lcd_set_cursor(j,3);
+				lcd_print_p((PGM_P)pgm_read_word(&activemenu[j-1]));
 			}
 			// Clear previous selection markers
 			lcd_set_cursor(2,1);
@@ -145,26 +152,27 @@ void menu_display(uint8_t item) {
 			lcd_putc(pgm_read_byte(&menusel_right));
 		// If we're going backward and not scrolling the list down
 		} else if(menuitem>activemenulen-LCD_LINES) {
-			for(; i>0; i--) {
-				lcd_set_cursor(i,3);
-				lcd_print_p((PGM_P)pgm_read_word(&activemenu[activemenulen-(LCD_LINES-(i-1))]));
+			uint8_t offset = (activemenulen<LCD_LINES)?0:1;
+			for(; j; j--) {
+				lcd_set_cursor(j,3);
+				lcd_print_p((PGM_P)pgm_read_word(&activemenu[activemenulen-(LCD_LINES-(j-offset))]));
 			}
 			// Clear previous selection markers
-			lcd_set_cursor(LCD_LINES-(activemenulen-menuitem)+2,1);
+			lcd_set_cursor(LCD_LINES-(activemenulen-menuitem)+offset+1,1);
 			lcd_putc(' ');
-			lcd_set_cursor(LCD_LINES-(activemenulen-menuitem)+2,LCD_DISP_LENGTH);
+			lcd_set_cursor(LCD_LINES-(activemenulen-menuitem)+offset+1,LCD_DISP_LENGTH);
 			lcd_putc(' ');
 			// Draw the new markers
-			lcd_set_cursor(LCD_LINES-(activemenulen-menuitem)+1,1);
+			lcd_set_cursor(LCD_LINES-(activemenulen-menuitem)+offset,1);
 			lcd_putc(pgm_read_byte(&menusel_left));
-			lcd_set_cursor(LCD_LINES-(activemenulen-menuitem)+1,LCD_DISP_LENGTH);
+			lcd_set_cursor(LCD_LINES-(activemenulen-menuitem)+offset,LCD_DISP_LENGTH);
 			lcd_putc(pgm_read_byte(&menusel_right));
 		// If we're scrolling
 		} else {
 			lcd_clrscr();
-			for(; i>0; i--) {
-				lcd_set_cursor(i,3);
-				lcd_print_p((PGM_P)pgm_read_word(&activemenu[(i-1)+(menuitem-1)]));
+			for(; j>0; j--) {
+				lcd_set_cursor(j,3);
+				lcd_print_p((PGM_P)pgm_read_word(&activemenu[(j-1)+(menuitem-1)]));
 			}
 			lcd_set_cursor(2,1);
 			lcd_putc(pgm_read_byte(&menusel_left));

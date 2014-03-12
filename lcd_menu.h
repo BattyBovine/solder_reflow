@@ -5,10 +5,12 @@
 
 #define MENU_LENGTH_main 4
 PGM_P main_menu[MENU_LENGTH_main];
-#define MENU_LENGTH_settings 2
+#define MENU_LENGTH_settings 3
 PGM_P settings_menu[MENU_LENGTH_settings];
 #define MENU_LENGTH_units 8
 PGM_P units_menu[MENU_LENGTH_units];
+#define MENU_LENGTH_sounds 2
+PGM_P sounds_menu[MENU_LENGTH_sounds];
 
 PGM_P *activemenu;
 uint8_t activemenulen;
