@@ -115,10 +115,11 @@ volatile uint8_t menuflag = 0x00;
 #define MENU_ANY()						(menuflag)
 #define MENU_SET(f)						(menuflag=MENU_##f)
 #define MENU_CLR()						(menuflag=0x00)
-#define MENU_MAIN							(0b00000001)
-#define MENU_PROFILES					(0b00000010)
-#define MENU_SETTINGS					(0b00000011)
-#define MENU_UNITS						(0b00000100)
+#define MENU_MAIN							1
+#define MENU_PROFILES					2
+#define MENU_SETTINGS					3
+#define MENU_UNITS						4
+#define MENU_SOUNDS						5
 
 /* EEPROM flags */
 #define EEPROM_START_ADDR		(uint8_t*)0x00
@@ -127,10 +128,10 @@ volatile uint8_t eepromflags = 0x00;
 #define EEPROM_UNINIT()			(eepromflags==0xFF)
 #define EEPROM_LOAD()				(eepromflags=eeprom_read_byte(EEPROM_START_ADDR))
 #define EEPROM_SAVE()				(eeprom_update_byte(EEPROM_START_ADDR,eepromflags))
-#define EEPROM_SET(f)				(eepromflags|=EEPROM_##f);EEPROM_SAVE()
-#define EEPROM_SETVAL(f)		(eepromflags|=(f));EEPROM_SAVE()
-#define EEPROM_CLR(f)				(eepromflags&=~EEPROM_##f);EEPROM_SAVE()
-#define EEPROM_CLRALL()			(eepromflags=0x00);EEPROM_SAVE()
+#define EEPROM_SET(f)				{(eepromflags|=EEPROM_##f);EEPROM_SAVE();}
+#define EEPROM_SETVAL(f)		{(eepromflags|=(f));EEPROM_SAVE();}
+#define EEPROM_CLR(f)				{(eepromflags&=~EEPROM_##f);EEPROM_SAVE();}
+#define EEPROM_CLRALL()			{(eepromflags=0x00);EEPROM_SAVE();}
 #define EEPROM_TEMPERATURE	(0b0000111)
 #define EEPROM_CELSIUS			(0b0000000)
 #define EEPROM_FAHRENHEIT		(0b0000001)
@@ -167,7 +168,7 @@ static inline void show_profile_completion(void);
 static inline void show_about(void);
 static inline void show_coming_soon(void);
 
-static inline void start_buzzer(uint8_t cnt);
+static inline void start_buzzer(uint8_t cnt, uint16_t ms);
 
 static inline void reset_profile_state(void);
 static inline void reset_cancel_timer(void);
@@ -185,5 +186,6 @@ static volatile uint32_t time_ms = 0;
 static volatile uint8_t ctovf_count = 0;
 static volatile uint8_t debounce_count = 0;
 static volatile uint8_t buzzer_count = 0;
+static volatile uint8_t buzzer_time = 0;
 
 #endif // SOLDER_REFLOW_H

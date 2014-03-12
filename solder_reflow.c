@@ -71,7 +71,7 @@ int main(void)
 	// Configure PWM for the piezo buzzer
 	TCCR2A |= ((1<<WGM21)|(1<<WGM20)|(1<<COM2B1));
 	TCCR2B |= ((1<<CS22)|(1<<CS21)|(1<<CS20));
-	OCR2B = 0x2B;
+	OCR2B = 0x40;
 	BUZZER_DISABLE;
 	
 	// Load settings from EEPROM and initialise if necessary
@@ -153,12 +153,20 @@ int main(void)
 									case 1:
 										MENU_SET(UNITS);
 										break;
+									case 2:
+										MENU_SET(SOUNDS);
+										break;
 								}
 							} else if(MENU(UNITS)) {
 								EEPROM_CLR(TEMPERATURE);	// Celsius
 								EEPROM_SETVAL(menu_selected());
 								MENU_SET(SETTINGS);
+							} else if(MENU(SOUNDS)) {
+								EEPROM_CLR(BUZZER);
+								if(menu_selected()) EEPROM_SET(BUZZER);
+								MENU_SET(SETTINGS);
 							}
+							start_buzzer(1,50);
 						} else if(STAT(PROFILE_COMPLETE) ||
 											STAT(PROFILE_CANCEL) ||
 											STAT(TC_ERROR)) {
@@ -166,9 +174,11 @@ int main(void)
 						} else if(STAT(ABOUT)) {
 							MENU_SET(MAIN);
 							STAT_CLR(ABOUT);
+							start_buzzer(1,50);
 						} else if(STAT(COMING_SOON)) {
 							MENU_SET(MAIN);
 							STAT_CLR(COMING_SOON);
+							start_buzzer(1,50);
 						}
 					}
 					
@@ -177,13 +187,17 @@ int main(void)
 					}
 					
 					if(ISRF(NEXT)) {					// Next button
-						if(MENU_ANY())
+						if(MENU_ANY()) {
 							menu_next();
+							start_buzzer(1,50);
+						}
 					}
 					
 					if(ISRF(PREV)) {					// Previous button
-						if(MENU_ANY())
+						if(MENU_ANY()) {
 							menu_prev();
+							start_buzzer(1,50);
+						}
 					}
 					
 					ISRF_CLRBTN();
@@ -291,6 +305,9 @@ static inline void show_menu(void)
 		case MENU_UNITS:
 			menu_init(units);
 			break;
+		case MENU_SOUNDS:
+			menu_init(sounds);
+			break;
 	}
 }
 
@@ -396,12 +413,13 @@ static inline void show_profile_completion(void)
 			CANCEL_TIMER_DISABLE;
 			lcd_set_cursor(2,2);
 			lcd_print_p(reflowcancelledmsg);
+			start_buzzer(3,100);
 		} else {
 			lcd_set_cursor(2,3);
 			lcd_print_p(reflowcompletemsg);
 			lcd_set_cursor(3,1);
 			lcd_print_p(presstocontinuemsg);
-			start_buzzer(3);
+			start_buzzer(3,500);
 		}
 	}
 	reset_profile_state();
@@ -430,10 +448,13 @@ static inline void show_coming_soon(void)
 
 
 
-static inline void start_buzzer(uint8_t cnt) {
-	buzzer_count = cnt*20;		// Beep three times for 0.5s each
-	BUZZER_ENABLE;
-	TEMPREP_BUZZ_ENABLE;
+static inline void start_buzzer(uint8_t cnt, uint16_t ms) {
+	if(EEPROM(BUZZER)) {
+		buzzer_time = ms/50;	// 20 timer ticks per second
+		buzzer_count = cnt*buzzer_time*2;
+		BUZZER_ENABLE;
+		TEMPREP_BUZZ_ENABLE;
+	}
 }
 
 
@@ -536,10 +557,10 @@ ISR(TIMER1_COMPA_vect)
 		// Report the temperature every 500ms
 		if((!(time_ms%500)) && STAT_SET(PROFILE_RUNNING))
 			ISRF_SET(REPORT_TEMP);
-	} else if(buzzer_count) {
+	}
+	if(buzzer_count) {
 		buzzer_count--;
-		if(!buzzer_count)	TEMPREP_BUZZ_DISABLE;
-		else if(!(buzzer_count%10)) BUZZER_TOGGLE;
+		if(buzzer_count && !(buzzer_count%buzzer_time)) BUZZER_TOGGLE;
 	}
 }
 
