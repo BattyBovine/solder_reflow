@@ -22,8 +22,9 @@ PGM_P main_menu[MENU_LENGTH_main] PROGMEM =
 
 // Settings
 const char sm_tempunits[] PROGMEM = "Temp. Units";
+const char sm_uisounds[] PROGMEM = "Menu Sounds";
 PGM_P settings_menu[MENU_LENGTH_settings] PROGMEM =
-{ global_back, sm_tempunits };
+{ global_back, sm_tempunits, sm_uisounds };
 
 // Temperature Units
 const char um_c[] PROGMEM = "Celsius";
@@ -36,6 +37,12 @@ const char um_e[] PROGMEM = "R\11aumur";
 const char um_o[] PROGMEM = "R\02mer";
 PGM_P units_menu[MENU_LENGTH_units] PROGMEM =
 { um_c, um_f, um_k, um_r, um_d, um_n, um_e, um_o };
+
+// Sounds On/Off
+const char um_off[] PROGMEM = "Off";
+const char um_on[] PROGMEM = "On";
+PGM_P sounds_menu[MENU_LENGTH_sounds] PROGMEM =
+{ um_off, um_on };
 
 volatile uint8_t menuitem = 0, menuitem_prev = 0;
 
@@ -128,8 +135,8 @@ void menu_display(uint8_t item) {
 		uint8_t i = (activemenulen<LCD_LINES)?activemenulen:LCD_LINES;
 		
 		// If we reach the beginning of the list
-		if (menuitem==0) {
-			for(; i>0; i--) {
+		if(menuitem==0) {
+			for(; i; i--) {
 				lcd_set_cursor(i,3);
 				lcd_print_p((PGM_P)pgm_read_word(&activemenu[i-1]));
 			}
@@ -145,24 +152,24 @@ void menu_display(uint8_t item) {
 			lcd_putc(pgm_read_byte(&menusel_right));
 		// If we're going backward and not scrolling the list down
 		} else if(menuitem>activemenulen-LCD_LINES) {
-			for(; i>0; i--) {
+			for(; i; i--) {
 				lcd_set_cursor(i,3);
-				lcd_print_p((PGM_P)pgm_read_word(&activemenu[activemenulen-(LCD_LINES-(i-1))]));
+				lcd_print_p((PGM_P)pgm_read_word(&activemenu[i-1]));
 			}
 			// Clear previous selection markers
-			lcd_set_cursor(LCD_LINES-(activemenulen-menuitem)+2,1);
+			lcd_set_cursor(menuitem+2,1);
 			lcd_putc(' ');
-			lcd_set_cursor(LCD_LINES-(activemenulen-menuitem)+2,LCD_DISP_LENGTH);
+			lcd_set_cursor(menuitem+2,LCD_DISP_LENGTH);
 			lcd_putc(' ');
 			// Draw the new markers
-			lcd_set_cursor(LCD_LINES-(activemenulen-menuitem)+1,1);
+			lcd_set_cursor(menuitem+1,1);
 			lcd_putc(pgm_read_byte(&menusel_left));
-			lcd_set_cursor(LCD_LINES-(activemenulen-menuitem)+1,LCD_DISP_LENGTH);
+			lcd_set_cursor(menuitem+1,LCD_DISP_LENGTH);
 			lcd_putc(pgm_read_byte(&menusel_right));
 		// If we're scrolling
 		} else {
 			lcd_clrscr();
-			for(; i>0; i--) {
+			for(; i; i--) {
 				lcd_set_cursor(i,3);
 				lcd_print_p((PGM_P)pgm_read_word(&activemenu[(i-1)+(menuitem-1)]));
 			}
