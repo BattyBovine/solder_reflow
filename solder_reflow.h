@@ -188,4 +188,6 @@ static volatile uint8_t debounce_count = 0;
 static volatile uint8_t buzzer_count = 0;
 static volatile uint8_t buzzer_time = 0;
 
+#define BUZZER_TIME_MENU	100
+
 #endif // SOLDER_REFLOW_H

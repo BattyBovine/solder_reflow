@@ -71,7 +71,7 @@ int main(void)
 	// Configure PWM for the piezo buzzer
 	TCCR2A |= ((1<<WGM21)|(1<<WGM20)|(1<<COM2B1));
 	TCCR2B |= ((1<<CS22)|(1<<CS21)|(1<<CS20));
-	OCR2B = 0x40;
+	OCR2B = 0xFF;
 	BUZZER_DISABLE;
 	
 	// Load settings from EEPROM and initialise if necessary
@@ -166,37 +166,41 @@ int main(void)
 								if(menu_selected()) EEPROM_SET(BUZZER);
 								MENU_SET(SETTINGS);
 							}
-							start_buzzer(1,50);
+							start_buzzer(1,BUZZER_TIME_MENU);
 						} else if(STAT(PROFILE_COMPLETE) ||
 											STAT(PROFILE_CANCEL) ||
 											STAT(TC_ERROR)) {
 							reset_all();
+						} else if(STAT(PROFILE_RUNNING)) {
+							start_buzzer(1,BUZZER_TIME_MENU);
 						} else if(STAT(ABOUT)) {
 							MENU_SET(MAIN);
 							STAT_CLR(ABOUT);
-							start_buzzer(1,50);
+							start_buzzer(1,BUZZER_TIME_MENU);
 						} else if(STAT(COMING_SOON)) {
 							MENU_SET(MAIN);
 							STAT_CLR(COMING_SOON);
-							start_buzzer(1,50);
+							start_buzzer(1,BUZZER_TIME_MENU);
 						}
 					}
 					
 					if(ISRF(CANCEL)) {				// Cancel button
 						STAT_SET(CANCEL);
+						if(STAT(PROFILE_RUNNING))
+							start_buzzer(1,BUZZER_TIME_MENU);
 					}
 					
 					if(ISRF(NEXT)) {					// Next button
 						if(MENU_ANY()) {
 							menu_next();
-							start_buzzer(1,50);
+							start_buzzer(1,BUZZER_TIME_MENU);
 						}
 					}
 					
 					if(ISRF(PREV)) {					// Previous button
 						if(MENU_ANY()) {
 							menu_prev();
-							start_buzzer(1,50);
+							start_buzzer(1,BUZZER_TIME_MENU);
 						}
 					}
 					
