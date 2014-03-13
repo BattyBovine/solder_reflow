@@ -162,9 +162,10 @@ volatile uint8_t pd_prev = 0xFF;
 #define ctore(x)	(x*0.8)						// Celsius to Reaumur
 #define ctoro(x)	(x*(0.525)+7.5)		// Celsius to Romer
 
-#define BUZZER_TIME_MENU			100
-#define BUZZER_TIME_CANCEL		150
-#define BUZZER_TIME_COMPLETE	500
+#define BUZZER_TIME_MENU					100
+#define BUZZER_TIME_CANCEL				150
+#define BUZZER_TIME_COMPLETE			500
+#define BUZZER_TIME_DOOR_TC_ERROR	1000
 
 
 

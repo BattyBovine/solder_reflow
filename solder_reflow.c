@@ -92,6 +92,7 @@ int main(void)
 	while(1) {
 		
 		if(STAT(DOOR_OPEN)|STAT(TC_ERROR)) {
+			start_buzzer(1,BUZZER_TIME_DOOR_TC_ERROR);
 			if(STAT(TC_ERROR)) {
 				show_thermocouple_error();
 				while(STAT(TC_ERROR)){};
