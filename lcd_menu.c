@@ -40,9 +40,11 @@ PGM_P units_menu[MENU_LENGTH_units] PROGMEM =
 
 // Sounds On/Off
 const char som_off[] PROGMEM = "Off";
-const char som_on[] PROGMEM = "On";
+const char som_low[] PROGMEM = "Low";
+const char som_med[] PROGMEM = "Medium";
+const char som_high[] PROGMEM = "High";
 PGM_P sounds_menu[MENU_LENGTH_sounds] PROGMEM =
-{ som_off, som_on };
+{ som_off, som_low, som_med, som_high };
 
 volatile uint8_t menuitem = 0, menuitem_prev = 0;
 

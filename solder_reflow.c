@@ -69,10 +69,8 @@ int main(void)
 	OCR1A = 3125;												// 0.05s at 16MHz / 256
 	
 	// Configure PWM for the piezo buzzer
-	TCCR2A |= ((1<<WGM21)|(1<<WGM20)|(1<<COM2B1));
-	TCCR2B |= ((1<<CS22)|(1<<CS21)|(1<<CS20));
-	OCR2B = 0xFF;
-	BUZZER_DISABLE;
+	TCCR2A |= ((1<<WGM21)|(1<<WGM20));
+	TCCR2B |= (1<<CS20);
 	
 	// Load settings from EEPROM and initialise if necessary
 	EEPROM_LOAD();
@@ -163,7 +161,17 @@ int main(void)
 								MENU_SET(SETTINGS);
 							} else if(MENU(SOUNDS)) {
 								EEPROM_CLR(BUZZER);
-								if(menu_selected()) EEPROM_SET(BUZZER);
+								switch(menu_selected()) {
+									case 1:
+										EEPROM_SET(BUZZER_LOW);
+										break;
+									case 2:
+										EEPROM_SET(BUZZER_MED);
+										break;
+									case 3:
+										EEPROM_SET(BUZZER_HIGH);
+										break;
+								}
 								MENU_SET(SETTINGS);
 							}
 						} else if(STAT(PROFILE_COMPLETE) ||
@@ -450,6 +458,17 @@ static inline void show_coming_soon(void)
 
 static inline void start_buzzer(uint8_t cnt, uint16_t ms) {
 	if(EEPROM(BUZZER)) {
+		switch(EEPROM(BUZZER)) {
+			case EEPROM_BUZZER_LOW:
+				OCR2B = 0x2F;
+				break;
+			case EEPROM_BUZZER_MED:
+				OCR2B = 0x77;
+				break;
+			case EEPROM_BUZZER_HIGH:
+				OCR2B = 0xFF;
+				break;
+		}
 		buzzer_time = ms/50;	// 20 timer ticks per second
 		buzzer_count = cnt*buzzer_time*2;
 		BUZZER_ENABLE;

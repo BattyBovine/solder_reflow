@@ -44,6 +44,8 @@
 #define CANCEL_TIMER_DISABLE	(TIMSK0 &= ~(1<<TOIE0))
 #define CANCEL_TIMER_ENABLED	(TIMSK0&(1<<TOIE0))
 
+
+
 /* Interrupt flags */
 volatile uint8_t isrflags = 0x00;
 #define ISRF(f)								(isrflags&(1<<ISRF_##f))
@@ -141,7 +143,11 @@ volatile uint8_t eepromflags = 0x00;
 #define EEPROM_NEWTON				(0b0000101)
 #define EEPROM_REAUMUR			(0b0000110)
 #define EEPROM_ROMER				(0b0000111)
-#define EEPROM_BUZZER				(0b0001000)
+#define EEPROM_BUZZER				(0b0011000)
+#define EEPROM_BUZZER_OFF		(0b0000000)
+#define EEPROM_BUZZER_LOW		(0b0001000)
+#define EEPROM_BUZZER_MED		(0b0010000)
+#define EEPROM_BUZZER_HIGH	(0b0011000)
 
 // Button states for PORTD
 volatile uint8_t pd_prev = 0xFF;
