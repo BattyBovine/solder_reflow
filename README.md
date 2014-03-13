@@ -8,12 +8,12 @@ Software for the ATmega168PA which controls a home-made solder reflow oven.
 Pin layout
 ==========
 
-PD2 - Door switch (detects when door is opened)
-PD3 - SSR (controls heating elements)
-PD5 - Rotary encoder B
-PD6 - Rotary encoder A
-PD7 - Enter/Cancel button
-PC0 - Thermocouple measurement (receives output from AD8495 chip)
+- PD2 - Door switch (detects when door is opened)
+- PD3 - SSR (controls heating elements)
+- PD5 - Rotary encoder B
+- PD6 - Rotary encoder A
+- PD7 - Enter/Cancel button
+- PC0 - Thermocouple measurement (receives output from AD8495 chip)
 
 
 
