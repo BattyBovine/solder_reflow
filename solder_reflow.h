@@ -156,6 +156,10 @@ volatile uint8_t pd_prev = 0xFF;
 #define ctore(x)	(x*0.8)						// Celsius to Reaumur
 #define ctoro(x)	(x*(0.525)+7.5)		// Celsius to Romer
 
+#define BUZZER_TIME_MENU			100
+#define BUZZER_TIME_CANCEL		150
+#define BUZZER_TIME_COMPLETE	500
+
 
 
 static inline void show_temp_report(void);
@@ -187,7 +191,5 @@ static volatile uint8_t ctovf_count = 0;
 static volatile uint8_t debounce_count = 0;
 static volatile uint8_t buzzer_count = 0;
 static volatile uint8_t buzzer_time = 0;
-
-#define BUZZER_TIME_MENU	100
 
 #endif // SOLDER_REFLOW_H

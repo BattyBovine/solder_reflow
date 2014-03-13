@@ -166,22 +166,18 @@ int main(void)
 								if(menu_selected()) EEPROM_SET(BUZZER);
 								MENU_SET(SETTINGS);
 							}
-							start_buzzer(1,BUZZER_TIME_MENU);
 						} else if(STAT(PROFILE_COMPLETE) ||
 											STAT(PROFILE_CANCEL) ||
 											STAT(TC_ERROR)) {
 							reset_all();
-						} else if(STAT(PROFILE_RUNNING)) {
-							start_buzzer(1,BUZZER_TIME_MENU);
 						} else if(STAT(ABOUT)) {
 							MENU_SET(MAIN);
 							STAT_CLR(ABOUT);
-							start_buzzer(1,BUZZER_TIME_MENU);
 						} else if(STAT(COMING_SOON)) {
 							MENU_SET(MAIN);
 							STAT_CLR(COMING_SOON);
-							start_buzzer(1,BUZZER_TIME_MENU);
 						}
+						start_buzzer(1,BUZZER_TIME_MENU);
 					}
 					
 					if(ISRF(CANCEL)) {				// Cancel button
@@ -417,13 +413,13 @@ static inline void show_profile_completion(void)
 			CANCEL_TIMER_DISABLE;
 			lcd_set_cursor(2,2);
 			lcd_print_p(reflowcancelledmsg);
-			start_buzzer(3,100);
+			start_buzzer(3,BUZZER_TIME_CANCEL);
 		} else {
 			lcd_set_cursor(2,3);
 			lcd_print_p(reflowcompletemsg);
 			lcd_set_cursor(3,1);
 			lcd_print_p(presstocontinuemsg);
-			start_buzzer(3,500);
+			start_buzzer(3,BUZZER_TIME_COMPLETE);
 		}
 	}
 	reset_profile_state();
